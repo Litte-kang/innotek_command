@@ -1,0 +1,34 @@
+var mongoose = require('../../db');
+var Schema = mongoose.Schema;
+var client = require('../../remoteCmd');
+
+
+var schema = new Schema({
+	infoType: 		{type: Number, default: 12},
+	address:   		String,
+	midAddress:     String,
+	curves: 	    Schema.Types.Mixed,
+	createdAt:  	{type: Date, default: Date.now}
+});
+
+var Command = mongoose.model('Command', schema);
+
+
+module.exports.sendCurves = function(socket, midAddress){
+	console.log('Send command to ' + midAddress);
+
+	Command.findOne({midAddress: midAddress},function(err, command){
+		if(err){
+			console.log(err);
+		}else{
+			if(command != null){
+				console.log('Send command');
+
+				client.SendCmdInfo(socket, JSON.stringify(command.curves));
+
+			}else
+				console.log('No command found');
+		}
+	});
+	
+};
